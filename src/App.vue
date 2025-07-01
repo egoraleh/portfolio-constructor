@@ -10,9 +10,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="app">
+  <section id="app">
     <RouterView />
-  </div>
+  </section>
 </template>
 
 <style scoped>

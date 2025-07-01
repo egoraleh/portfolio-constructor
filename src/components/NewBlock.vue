@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { usePortfolioStore } from '@/stores/portfolioStore'
-import type { PortfolioBlock } from '@/types/PortfolioBlock'
+
+const props = defineProps<{
+  categoryId: string
+}>()
 
 const portfolioStore = usePortfolioStore()
 
@@ -35,23 +38,25 @@ function addBlock() {
   if (image.value) {
     const reader = new FileReader()
     reader.onload = () => {
-      const newBlock: PortfolioBlock = {
+      const newBlock = {
         title: title.value,
         image: reader.result as string,
         infoFields: [...infoFields.value]
       }
-      portfolioStore.addBlock(newBlock)
+      portfolioStore.addBlock(props.categoryId, newBlock)
       resetForm()
+      emit('added')
     }
     reader.readAsDataURL(image.value)
   } else {
-    const newBlock: PortfolioBlock = {
+    const newBlock = {
       title: title.value,
       image: null,
       infoFields: [...infoFields.value]
     }
-    portfolioStore.addBlock(newBlock)
+    portfolioStore.addBlock(props.categoryId, newBlock)
     resetForm()
+    emit('added')
   }
 }
 
@@ -60,50 +65,66 @@ function resetForm() {
   image.value = null
   infoFields.value = []
 }
+
+const emit = defineEmits<{
+  (e: 'added'): void
+}>()
 </script>
 
 <template>
   <section class="new-block">
-    <label for="title">Введите название блока:</label>
+    <label
+      for="title"
+      class="new-block__label new-block__label--title"
+    >
+      Введите название блока:
+    </label>
     <input 
       id="title"
       v-model="title"
-      class="new-block__title"
+      class="new-block__input new-block__input--title"
       type="text"
       required
     >
 
-    <label for="image">Выберите картинку (необязательно):</label>
+    <label 
+      for="image"
+      class="new-block__label new-block__label--image"
+    >
+      Выберите картинку (необязательно):
+    </label>
     <input
       id="image"
-      class="new-block__image"
+      class="new-block__input new-block__input--image"
       type="file"
       accept="image/*"
       @change="onImageChange"
     >
 
-    <div class="info-fields">
-      <div
+    <section class="new-block__info-fields">
+      <section
         v-for="(field, index) in infoFields"
         :key="index"
-        class="info-field"
+        class="new-block__info-field"
       >
         <input
           v-model="infoFields[index]"
           type="text"
+          class="new-block__input"
           placeholder="Введите информацию"
         >
         <button
           type="button"
+          class="new-block__button new-block__button--remove-info"
           @click="removeField(index)"
         >
           Удалить
         </button>
-      </div>
-    </div>
+      </section>
+    </section>
 
     <button
-      class="new-block__add-input-button"
+      class="new-block__button new-block__button--add-info"
       type="button"
       @click="addField"
     >
@@ -112,6 +133,7 @@ function resetForm() {
 
     <button
       type="button"
+      class="new-block__button new-block__button--add-block"
       @click="addBlock"
     >
       Добавить блок

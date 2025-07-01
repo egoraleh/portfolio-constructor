@@ -9,18 +9,18 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div
+  <section
     v-if="show"
     class="modal-overlay"
     @click.self="emit('close')"
   >
-    <div class="modal-content">
+    <section class="modal-content">
       <slot />
       <button @click="emit('close')">
         Закрыть
       </button>
-    </div>
-  </div>
+    </section>
+  </section>
 </template>
 
 <style scoped>
