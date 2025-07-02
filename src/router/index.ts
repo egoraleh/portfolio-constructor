@@ -3,7 +3,7 @@ import Home from "@/views/Home.vue";
 import Instruction from "@/views/Instruction.vue";
 
 const routes: Array<RouteRecordRaw> = [
-    { path: '/', component: Home, meta: { title: 'Главная' } },
+    { path: '/', component: Home, meta: { title: 'Конструктор портфолио' } },
     { path: '/instruction', component: Instruction, meta: { title: 'Инструкция' } }
 ];
 

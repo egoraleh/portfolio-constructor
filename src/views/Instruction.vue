@@ -1,7 +1,3 @@
-<script setup lang="ts">
-
-</script>
-
 <template>
   <section class="instruction-container">
     <router-link
@@ -22,14 +18,21 @@
   </section>
 </template>
 
+<script setup lang="ts">
+
+</script>
+
 <style scoped>
 .instruction-container {
   padding: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh;
 }
 
 .instruction-container__info {
   background: floralwhite;
-  margin-left: 15%;
   text-align: center;
   max-width: 70%;
   padding: 20px;
@@ -38,11 +41,15 @@
   font-weight: bold;
   font-size: 25px;
   line-height: 1.5;
+  margin: 0 auto;
 }
 
 .instruction-container__image {
   width: 50px;
   transition: filter 0.3s ease, transform 0.3s ease;
+  position: absolute;
+  left: 15px;
+  top: 15px;
 }
 
 .instruction-container__link:hover .instruction-container__image {

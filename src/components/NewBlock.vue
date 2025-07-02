@@ -1,16 +1,109 @@
+<template>
+  <section class="new-block">
+    <h2 class="new-block__header">
+      Добавление блока в {{ categoryName }}
+    </h2>
+    <label
+      for="title"
+      class="new-block__label new-block__label--title"
+    >
+      Введите название блока:
+    </label>
+    <input 
+      id="title"
+      v-model="title"
+      class="new-block__input new-block__input--title"
+      type="text"
+      required
+    >
+
+    <label 
+      for="image"
+      class="new-block__label new-block__label--image"
+    >
+      Выберите картинку (необязательно):
+    </label>
+    <input
+      id="image"
+      class="new-block__input new-block__input--image"
+      type="file"
+      accept="image/*"
+      @change="onImageChange"
+    >
+
+    <section class="new-block__info-fields">
+      <h2
+        v-show="showInfoHeader"
+        class="new-block__info-header"
+      >
+        Информация:
+      </h2>
+      <section
+        v-for="(field, index) in infoFields"
+        :key="index"
+        class="new-block__info-field"
+      >
+        <input
+          v-model="infoFields[index]"
+          type="text"
+          class="new-block__input"
+          placeholder="Введите информацию"
+        >
+        <button
+          type="button"
+          class="new-block__button new-block__button--remove-info"
+          @click="removeField(index)"
+        >
+          ✖
+        </button>
+      </section>
+    </section>
+
+    <button
+      class="new-block__button new-block__button--add-info"
+      type="button"
+      @click="addField"
+    >
+      Добавить информационное поле
+    </button>
+
+    <button
+      type="button"
+      class="new-block__button new-block__button--add-block"
+      @click="addBlock"
+    >
+      Добавить блок
+    </button>
+  </section>
+</template>
+
 <script setup lang="ts">
-import { ref } from 'vue'
+import {ref, computed, watch} from 'vue'
 import { usePortfolioStore } from '@/stores/portfolioStore'
 
 const props = defineProps<{
   categoryId: string
 }>()
 
+const emit = defineEmits<{
+  (e: 'added'): void
+}>()
+
 const portfolioStore = usePortfolioStore()
 
+const categoryName = computed(() => {
+  const cat = portfolioStore.categories.find(c => c.id === props.categoryId)
+  return cat?.title
+})
+
+const showInfoHeader = ref(false)
 const title = ref('')
 const image = ref<File | null>(null)
 const infoFields = ref<string[]>([])
+
+watch(infoFields, () => {
+  showInfoHeader.value = infoFields.value.length > 0;
+})
 
 function addField() {
   infoFields.value.push('')
@@ -65,82 +158,113 @@ function resetForm() {
   image.value = null
   infoFields.value = []
 }
-
-const emit = defineEmits<{
-  (e: 'added'): void
-}>()
 </script>
 
-<template>
-  <section class="new-block">
-    <label
-      for="title"
-      class="new-block__label new-block__label--title"
-    >
-      Введите название блока:
-    </label>
-    <input 
-      id="title"
-      v-model="title"
-      class="new-block__input new-block__input--title"
-      type="text"
-      required
-    >
-
-    <label 
-      for="image"
-      class="new-block__label new-block__label--image"
-    >
-      Выберите картинку (необязательно):
-    </label>
-    <input
-      id="image"
-      class="new-block__input new-block__input--image"
-      type="file"
-      accept="image/*"
-      @change="onImageChange"
-    >
-
-    <section class="new-block__info-fields">
-      <section
-        v-for="(field, index) in infoFields"
-        :key="index"
-        class="new-block__info-field"
-      >
-        <input
-          v-model="infoFields[index]"
-          type="text"
-          class="new-block__input"
-          placeholder="Введите информацию"
-        >
-        <button
-          type="button"
-          class="new-block__button new-block__button--remove-info"
-          @click="removeField(index)"
-        >
-          Удалить
-        </button>
-      </section>
-    </section>
-
-    <button
-      class="new-block__button new-block__button--add-info"
-      type="button"
-      @click="addField"
-    >
-      Добавить информационное поле
-    </button>
-
-    <button
-      type="button"
-      class="new-block__button new-block__button--add-block"
-      @click="addBlock"
-    >
-      Добавить блок
-    </button>
-  </section>
-</template>
-
 <style scoped>
+.new-block {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  background: floralwhite;
+  text-align: left;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
+.new-block__header {
+  text-align: center;
+  font-size: 28px;
+}
+
+.new-block__label {
+  font-size: 18px;
+  font-weight: 500;
+  color: #252525;
+  margin-left: 5px;
+}
+
+.new-block__label--title {
+  margin-top: 0;
+}
+
+.new-block__label--image {
+  margin-top: 12px;
+}
+
+.new-block__input {
+  width: 100%;
+  padding: 10px 12px;
+  height: 40px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  background: #e3e3e3;
+  transition: outline-color 0.3s ease;
+}
+
+.new-block__input:focus {
+  outline: 2px solid #ff6121;
+  background: floralwhite;
+  outline-offset: 2px;
+}
+
+.new-block__info-fields {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+  gap: 20px;
+}
+
+.new-block__info-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.new-block__button {
+  font-size: 16px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: floralwhite;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.new-block__button--add-info {
+  align-self: flex-start;
+  background: #008000;
+  margin-bottom: 10px;
+}
+
+.new-block__button--add-info:hover {
+  background: #005e00;
+  transform: scale(1.05);
+}
+
+.new-block__button--remove-info {
+  background: #cd0006;
+  font-size: 28px;
+  width: 40px;
+  height: 40px;
+}
+
+.new-block__button--remove-info:hover {
+  background: #970102;
+  transform: scale(1.05);
+}
+
+.new-block__button--add-block {
+  align-self: center;
+  background: #cd671f;
+}
+
+.new-block__button--add-block:hover {
+  background: #984f1a;
+  transform: scale(1.05);
+}
 </style>

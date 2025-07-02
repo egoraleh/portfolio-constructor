@@ -1,15 +1,3 @@
-<script setup lang="ts">
-import type { PortfolioBlock } from '@/types/PortfolioBlock'
-
-const props = defineProps<{
-  block: PortfolioBlock
-}>()
-
-const emit = defineEmits<{
-  (e: 'remove'): void
-}>()
-</script>
-
 <template>
   <section class="block-item">
     <img
@@ -44,13 +32,27 @@ const emit = defineEmits<{
   </section>
 </template>
 
+<script setup lang="ts">
+import type { PortfolioBlock } from '@/types/PortfolioBlock'
+
+const props = defineProps<{
+  block: PortfolioBlock
+}>()
+
+const emit = defineEmits<{
+  (e: 'remove'): void
+}>()
+</script>
+
 <style scoped>
 .block-item {
   display: flex;
   align-items: center;
   background: floralwhite;
   border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   max-width: 1200px;
+  min-width: 500px;
   margin: 20px 40px;
   padding: 20px 20px 70px 20px;
   min-height: 200px;

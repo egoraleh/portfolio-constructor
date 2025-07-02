@@ -1,13 +1,3 @@
-<script setup lang="ts">
-const props = defineProps<{
-  show: boolean
-}>()
-
-const emit = defineEmits<{
-  (e: 'close'): void
-}>()
-</script>
-
 <template>
   <section
     v-if="show"
@@ -22,6 +12,16 @@ const emit = defineEmits<{
     </section>
   </section>
 </template>
+
+<script setup lang="ts">
+const props = defineProps<{
+  show: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'close'): void
+}>()
+</script>
 
 <style scoped>
 
