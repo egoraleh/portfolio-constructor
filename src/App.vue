@@ -1,3 +1,7 @@
+<template>
+  <RouterView />
+</template>
+
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { usePortfolioStore } from '@/stores/portfolioStore'
@@ -9,12 +13,21 @@ onMounted(() => {
 })
 </script>
 
-<template>
-  <section id="app">
-    <RouterView />
-  </section>
-</template>
+<style>
+* {
+  box-sizing: border-box;
+}
 
-<style scoped>
+body {
+  background: antiquewhite;
+  font-family: 'Inter', sans-serif;
+  color: #333;
+  line-height: 1.6;
+}
 
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 </style>

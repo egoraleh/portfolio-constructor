@@ -3,33 +3,47 @@
     <h1 class="main__header">
       Конструктор портфолио
     </h1>
-    
-    <p>
+
+    <p data-ignore-export>
       <router-link
         class="instruction-link"
         to="/instruction"
       >
-        <img 
+        <img
           src="/src/assets/images/icons/info.png"
           class="instruction-link__image"
           alt="Информация"
         >
       </router-link>
     </p>
-    
-    <button
+
+    <BaseButton
+      custom-class="main__button"
+      data-ignore-export
+      @click="downloadPortfolio"
+    >
+      ⬇ Скачать портфолио
+    </BaseButton>
+
+    <BaseButton
       v-show="showAddCategoryButton"
-      class="main__button"
-      @click="openNewCategoryForm"
+      custom-class="main__button"
+      data-ignore-export
+      @click="openNewCategoryModal"
     >
       ✚ Добавить категорию
-    </button>
+    </BaseButton>
 
-    <NewCategory
-      v-if="showNewCategoryForm"
-      @add-category="handleAddCategory"
-      @cancel="cancelNewCategory"
-    />
+    <BaseModal
+      :show="showCategoryModal"
+      data-ignore-export
+      @close="closeCategoryModal"
+    >
+      <NewCategory
+        @add-category="handleAddCategory"
+        @cancel="closeCategoryModal"
+      />
+    </BaseModal>
 
     <section
       v-for="category in store.categories.sort((a, b) => a.position - b.position)"
@@ -41,24 +55,26 @@
           {{ category.title }}
         </h2>
 
-        <button
-          class="category__button category__button--remove"
+        <BaseButton
+          custom-class="category__button category__button--remove"
+          data-ignore-export
           @click="() => removeCategory(category.id)"
         >
-          <img 
-            src="/src/assets/images/icons/trash.png" 
+          <img
+            src="/src/assets/images/icons/trash.png"
             class="category__button-image"
             alt=""
           >
-        </button>
+        </BaseButton>
       </section>
 
-      <button
-        class="category__button category__button--add"
+      <BaseButton
+        custom-class="category__button category__button--add"
+        data-ignore-export
         @click="() => openBlockModal(category.id)"
       >
         ✚ Добавить блок в категорию
-      </button>
+      </BaseButton>
 
       <section class="category__blocks">
         <BlockItem
@@ -70,8 +86,9 @@
       </section>
     </section>
 
-    <Modal
+    <BaseModal
       :show="showBlockModal"
+      data-ignore-export
       @close="closeBlockModal"
     >
       <NewBlock
@@ -79,64 +96,113 @@
         :category-id="activeCategoryId"
         @added="closeBlockModal"
       />
-    </Modal>
+    </BaseModal>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { usePortfolioStore } from '@/stores/portfolioStore'
-import NewBlock from '@/components/NewBlock.vue'
-import Modal from '@/components/Modal.vue'
-import BlockItem from '@/components/BlockItem.vue'
-import NewCategory from '@/components/NewCategory.vue'
+import { ref } from 'vue';
+import { usePortfolioStore } from '@/stores/portfolioStore';
+import NewBlock from '@/ui/components/NewBlock.vue';
+import BlockItem from '@/ui/components/BlockItem.vue';
+import NewCategory from '@/ui/components/NewCategory.vue';
+import BaseButton from '@/ui/base/BaseButton.vue';
+import BaseModal from "@/ui/base/BaseModal.vue";
 
-const store = usePortfolioStore()
+const store = usePortfolioStore();
 
-const showNewCategoryForm = ref(false)
+const activeCategoryId = ref<string | null>(null);
 
-const activeCategoryId = ref<string | null>(null)
+const showBlockModal = ref(false);
 
-const showBlockModal = ref(false)
+const showCategoryModal = ref(false);
 
-const showAddCategoryButton = ref(true)
+const showAddCategoryButton = ref(true);
 
-function openNewCategoryForm() {
-  showNewCategoryForm.value = true
-  showAddCategoryButton.value = false
-}
-
-function handleAddCategory(title: string) {
+const handleAddCategory = (title: string) => {
   store.addCategory(title)
-  showNewCategoryForm.value = false
-  showAddCategoryButton.value = true
-}
+  closeCategoryModal()
+};
 
-function cancelNewCategory() {
-  showNewCategoryForm.value = false
-  showAddCategoryButton.value = true
-}
-
-function openBlockModal(categoryId: string) {
+const openBlockModal = (categoryId: string) => {
   activeCategoryId.value = categoryId
   showBlockModal.value = true
-}
+};
 
-function closeBlockModal() {
+const closeBlockModal = () => {
   showBlockModal.value = false
   activeCategoryId.value = null
-}
+};
 
-function removeCategory(categoryId: string) {
+const openNewCategoryModal = () => {
+  showAddCategoryButton.value = false;
+  showCategoryModal.value = true;
+};
+
+const closeCategoryModal = () => {
+  showAddCategoryButton.value = true;
+  showCategoryModal.value = false;
+};
+
+const removeCategory = (categoryId: string) => {
   store.removeCategory(categoryId)
-}
+};
 
-function removeBlock(categoryId: string, blockId: string) {
+const removeBlock = (categoryId: string, blockId: string) => {
   store.removeBlock(categoryId, blockId)
-}
+};
+
+const getAllStyles = () => {
+  let styles = '';
+
+  document.head.querySelectorAll('style, link[rel="stylesheet"]').forEach((tag) => {
+    styles += tag.outerHTML;
+  });
+
+  return styles;
+};
+
+const downloadPortfolio = () => {
+  const portfolioContainer = document.querySelector('#app');
+
+  if (!portfolioContainer) {
+    console.error('Контейнер портфолио не найден');
+    return;
+  }
+
+  const exportContent = portfolioContainer.cloneNode(true) as HTMLElement;
+
+  const mainHeader = exportContent.querySelector('.main__header');
+  if (mainHeader) {
+    mainHeader.textContent = 'Моё портфолио';
+  }
+
+  exportContent.querySelectorAll('[data-ignore-export]').forEach((el) => el.remove());
+
+  const dynamicStyles = getAllStyles();
+
+  const fullHtml = `
+    <html lang="ru">
+      <head>
+        <meta charset="utf-8">
+        <title>Моё портфолио</title>
+        ${dynamicStyles}
+      </head>
+      <body>
+        ${exportContent.outerHTML}
+      </body>
+    </html>
+  `;
+
+  const blob = new Blob([fullHtml], { type: 'text/html' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'portfolio.html';
+  link.click();
+};
 </script>
 
-<style scoped>
+<style>
 .instruction-link__image {
   width: 50px;
   transition: filter 0.3s ease, transform 0.3s ease;
@@ -163,20 +229,8 @@ function removeBlock(categoryId: string, blockId: string) {
 }
 
 .main__button {
-  border: none;
-  border-radius: 10px;
-  background: #cd671f;
-  color: floralwhite;
-  font-size: 16px;
   height: 35px;
-  width: 200px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.main__button:hover {
-  background: #984f1a;
-  transform: scale(1.05);
+  width: 250px;
 }
 
 .category__title {
@@ -188,15 +242,10 @@ function removeBlock(categoryId: string, blockId: string) {
 .category__button--remove {
   width: 50px;
   height: 40px;
-  border: none;
-  border-radius: 10px;
   background: #cd0006;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .category__button--remove:hover {
   background: #7a0003;
-  transform: scale(1.05);
 }
 </style>

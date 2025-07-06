@@ -23,17 +23,18 @@
       </ul>
     </section>
 
-    <button
-      class="block-item__button"
+    <BaseButton
+      custom-class="block-item__button"
+      data-ignore-export
       @click="$emit('remove')"
     >
       Удалить
-    </button>
+    </BaseButton>
   </section>
 </template>
 
 <script setup lang="ts">
-import type { PortfolioBlock } from '@/types/PortfolioBlock'
+import type { PortfolioBlock } from '@/types/PortfolioBlock';
 
 const props = defineProps<{
   block: PortfolioBlock
@@ -44,7 +45,7 @@ const emit = defineEmits<{
 }>()
 </script>
 
-<style scoped>
+<style>
 .block-item {
   display: flex;
   align-items: center;

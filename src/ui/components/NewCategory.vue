@@ -3,27 +3,27 @@
     <h2 class="new-category__header">
       Новая категория:
     </h2>
-    <input
+    <BaseInput
       v-model="categoryTitle"
       type="text"
       placeholder="Название категории"
-      class="new-category__input"
-    >
+      custom-class="new-category__input"
+    />
 
     <section class="new-category__actions">
       <section class="new-category__buttons">
-        <button
-          class="new-category__button new-category__button--add"
+        <BaseButton
+          custom-class="new-category__button new-category__button--add"
           @click="addCategory"
         >
           ✔
-        </button>
-        <button
-          class="new-category__button new-category__button--cancel"
+        </BaseButton>
+        <BaseButton
+          custom-class="new-category__button new-category__button--cancel"
           @click="cancel"
         >
           ✖
-        </button>
+        </BaseButton>
       </section>
 
       <section />
@@ -33,6 +33,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import BaseInput from "@/ui/base/BaseInput.vue";
+import BaseButton from "@/ui/base/BaseButton.vue";
 
 const emit = defineEmits<{
   (e: 'add-category', title: string): void
@@ -56,7 +58,7 @@ function cancel() {
 }
 </script>
 
-<style scoped>
+<style>
 .new-category {
   width: fit-content;
 }
@@ -91,12 +93,8 @@ function cancel() {
 .new-category__button {
   margin: 10px 5px;
   font-size: 18px;
-  color: floralwhite;
-  cursor: pointer;
   height: 35px;
   width: 35px;
-  border-radius: 10px;
-  border: none;
 }
 
 .new-category__button--add {
@@ -109,11 +107,9 @@ function cancel() {
 
 .new-category__button--add:hover {
   background: #005e00;
-  transform: scale(1.05);
 }
 
 .new-category__button--cancel:hover {
   background: #970102;
-  transform: scale(1.05);
 }
 </style>

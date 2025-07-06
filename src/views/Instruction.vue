@@ -22,7 +22,7 @@
 
 </script>
 
-<style scoped>
+<style>
 .instruction-container {
   padding: 30px;
   display: flex;

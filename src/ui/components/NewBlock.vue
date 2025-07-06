@@ -9,13 +9,13 @@
     >
       Введите название блока:
     </label>
-    <input 
+    <BaseInput
       id="title"
       v-model="title"
-      class="new-block__input new-block__input--title"
+      custom-class="new-block__input new-block__input--title"
       type="text"
       required
-    >
+    />
 
     <label 
       for="image"
@@ -23,13 +23,14 @@
     >
       Выберите картинку (необязательно):
     </label>
-    <input
+    <BaseInput
       id="image"
-      class="new-block__input new-block__input--image"
+      custom-class="new-block__input new-block__input--image"
       type="file"
       accept="image/*"
+      model-value=""
       @change="onImageChange"
-    >
+    />
 
     <section class="new-block__info-fields">
       <h2
@@ -43,43 +44,46 @@
         :key="index"
         class="new-block__info-field"
       >
-        <input
+        <BaseInput
           v-model="infoFields[index]"
           type="text"
-          class="new-block__input"
+          :is-textarea="true"
+          custom-class="new-block__input"
           placeholder="Введите информацию"
-        >
-        <button
+        />
+        <BaseButton
           type="button"
-          class="new-block__button new-block__button--remove-info"
+          custom-class="new-block__button new-block__button--remove-info"
           @click="removeField(index)"
         >
           ✖
-        </button>
+        </BaseButton>
       </section>
     </section>
 
-    <button
-      class="new-block__button new-block__button--add-info"
+    <BaseButton
+      custom-class="new-block__button new-block__button--add-info"
       type="button"
       @click="addField"
     >
       Добавить информационное поле
-    </button>
+    </BaseButton>
 
-    <button
+    <BaseButton
       type="button"
-      class="new-block__button new-block__button--add-block"
+      custom-class="new-block__button new-block__button--add-block"
       @click="addBlock"
     >
       Добавить блок
-    </button>
+    </BaseButton>
   </section>
 </template>
 
 <script setup lang="ts">
 import {ref, computed, watch} from 'vue'
-import { usePortfolioStore } from '@/stores/portfolioStore'
+import { usePortfolioStore } from '@/stores/portfolioStore.js'
+import BaseInput from "@/ui/base/BaseInput.vue";
+import BaseButton from "@/ui/base/BaseButton.vue";
 
 const props = defineProps<{
   categoryId: string
@@ -160,7 +164,7 @@ function resetForm() {
 }
 </script>
 
-<style scoped>
+<style>
 .new-block {
   width: 100%;
   max-width: 600px;
@@ -225,25 +229,14 @@ function resetForm() {
   gap: 8px;
 }
 
-.new-block__button {
-  font-size: 16px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  color: floralwhite;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
 .new-block__button--add-info {
   align-self: flex-start;
-  background: #008000;
+  background: #cd671f;
   margin-bottom: 10px;
 }
 
 .new-block__button--add-info:hover {
-  background: #005e00;
-  transform: scale(1.05);
+  background: #984f1a;
 }
 
 .new-block__button--remove-info {
@@ -255,16 +248,14 @@ function resetForm() {
 
 .new-block__button--remove-info:hover {
   background: #970102;
-  transform: scale(1.05);
 }
 
 .new-block__button--add-block {
   align-self: center;
-  background: #cd671f;
+  background: #008000;
 }
 
 .new-block__button--add-block:hover {
-  background: #984f1a;
-  transform: scale(1.05);
+  background: #005e00;
 }
 </style>

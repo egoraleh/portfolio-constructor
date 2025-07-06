@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { PortfolioCategory } from '@/types/PortfolioCategory.ts'
 import { nanoid } from 'nanoid'
-import {PortfolioBlock} from "@/types/PortfolioBlock.ts";
+import { PortfolioBlock } from '@/types/PortfolioBlock.ts';
 
 export const usePortfolioStore = defineStore('portfolio', () => {
     const categories = ref<PortfolioCategory[]>([])
