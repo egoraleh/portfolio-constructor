@@ -4,6 +4,19 @@ import type { PortfolioCategory } from '@/types/PortfolioCategory.ts'
 import { nanoid } from 'nanoid'
 import { PortfolioBlock } from '@/types/PortfolioBlock.ts';
 
+export interface PortfolioStore {
+    categories: PortfolioCategory[];
+
+    addCategory(title: string): void;
+    removeCategory(categoryId: string): void;
+
+    addBlock(categoryId: string, block: Omit<PortfolioBlock, 'id' | 'position'>): void;
+    removeBlock(categoryId: string, blockId: string): void;
+
+    saveToLocalStorage(): void;
+    loadFromLocalStorage(): void;
+}
+
 export const usePortfolioStore = defineStore('portfolio', () => {
     const categories = ref<PortfolioCategory[]>([])
 
@@ -62,4 +75,4 @@ export const usePortfolioStore = defineStore('portfolio', () => {
         saveToLocalStorage,
         loadFromLocalStorage
     };
-})
+});

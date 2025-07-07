@@ -53,20 +53,6 @@ watch(() => props.modelValue, () => {
 });
 </script>
 
-<style>
-.base-input {
-  padding: 10px 12px;
-  font-size: 16px;
-  border: none;
-  border-radius: 10px;
-  background: #e3e3e3;
-  transition: outline-color 0.3s ease;
-  resize: none;
-}
-
-.base-input:focus {
-  outline: 2px solid #ff6121;
-  background: floralwhite;
-  outline-offset: 2px;
-}
+<style lang="scss">
+@use '@/assets/styles/input';
 </style>
