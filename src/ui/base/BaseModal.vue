@@ -6,19 +6,11 @@
   >
     <div class="base-modal-content">
       <slot />
-      <BaseButton
-        custom-class="modal-close-btn" 
-        @click="$emit('close')"
-      >
-        Закрыть
-      </BaseButton>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import BaseButton from './BaseButton.vue'
-
 const props = defineProps<{
   show: boolean
 }>()
@@ -39,6 +31,7 @@ const emit = defineEmits<{
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .base-modal-content {
@@ -48,14 +41,5 @@ const emit = defineEmits<{
   max-width: 600px;
   width: 90%;
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-}
-
-.modal-close-btn {
-  margin-top: 20px;
-  background: #cd0006;
-}
-
-.modal-close-btn:hover {
-  background: #970102;
 }
 </style>

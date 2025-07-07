@@ -32,13 +32,13 @@
       @change="onImageChange"
     />
 
+    <label
+      v-show="showInfoHeader"
+      class="new-block__label new-block__label__info"
+    >
+      Добавьте информацию к блоку:
+    </label>
     <section class="new-block__info-fields">
-      <h2
-        v-show="showInfoHeader"
-        class="new-block__info-header"
-      >
-        Информация:
-      </h2>
       <section
         v-for="(field, index) in infoFields"
         :key="index"
@@ -66,16 +66,26 @@
       type="button"
       @click="addField"
     >
-      Добавить информационное поле
+      ✚ Добавить информационное поле
     </BaseButton>
 
-    <BaseButton
-      type="button"
-      custom-class="new-block__button new-block__button--add-block"
-      @click="addBlock"
-    >
-      Добавить блок
-    </BaseButton>
+    <section class="final-buttons">
+      <BaseButton
+        type="button"
+        custom-class="new-block__button new-block__button--add-block"
+        @click="addBlock"
+      >
+        Сохранить
+      </BaseButton>
+
+      <BaseButton
+        type="button"
+        custom-class="new-block__button new-block__button--cancel"
+        @click="cancel"
+      >
+        Отмена
+      </BaseButton>
+    </section>
   </section>
 </template>
 
@@ -91,6 +101,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'added'): void
+  (e: 'cancel'): void
 }>()
 
 const portfolioStore = usePortfolioStore()
@@ -100,80 +111,84 @@ const categoryName = computed(() => {
   return cat?.title
 })
 
-const showInfoHeader = ref(false)
 const title = ref('')
 const image = ref<File | null>(null)
 const infoFields = ref<string[]>([])
 
-watch(infoFields, () => {
-  showInfoHeader.value = infoFields.value.length > 0;
-})
+const showInfoHeader = computed(() => infoFields.value.length > 0);
 
-function addField() {
-  infoFields.value.push('')
-}
+const addField = () => {
+  infoFields.value.push('');
+};
 
-function removeField(index: number) {
-  infoFields.value.splice(index, 1)
-}
+const removeField = (index: number) => {
+  infoFields.value.splice(index, 1);
+};
 
-function onImageChange(event: Event) {
-  const target = event.target as HTMLInputElement
+const onImageChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    image.value = target.files[0]
+    image.value = target.files[0];
   } else {
-    image.value = null
+    image.value = null;
   }
-}
+};
 
-function addBlock() {
+const addBlock = () => {
   if (!title.value.trim()) {
-    alert('Введите название блока')
+    alert('Введите название блока');
+    return;
+  }
+
+  if (infoFields.value.length === 0) {
+    alert('Добавьте хотя бы одно информационное поле')
     return
   }
 
   if (image.value) {
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = () => {
       const newBlock = {
         title: title.value,
         image: reader.result as string,
         infoFields: [...infoFields.value]
       }
-      portfolioStore.addBlock(props.categoryId, newBlock)
-      resetForm()
-      emit('added')
+      portfolioStore.addBlock(props.categoryId, newBlock);
+      resetForm();
+      emit('added');
     }
-    reader.readAsDataURL(image.value)
+    reader.readAsDataURL(image.value);
   } else {
     const newBlock = {
       title: title.value,
       image: null,
       infoFields: [...infoFields.value]
-    }
-    portfolioStore.addBlock(props.categoryId, newBlock)
-    resetForm()
-    emit('added')
+    };
+    portfolioStore.addBlock(props.categoryId, newBlock);
+    resetForm();
+    emit('added');
   }
-}
+};
 
-function resetForm() {
-  title.value = ''
-  image.value = null
-  infoFields.value = []
-}
+const cancel = () => {
+  resetForm();
+  emit('cancel');
+};
+
+const resetForm = () => {
+  title.value = '';
+  image.value = null;
+  infoFields.value = [];
+};
 </script>
 
 <style>
 .new-block {
   width: 100%;
-  max-width: 600px;
   margin: 0 auto;
   background: floralwhite;
   text-align: left;
-  border-radius: 20px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -181,6 +196,7 @@ function resetForm() {
 
 .new-block__header {
   text-align: center;
+  margin: 0;
   font-size: 28px;
 }
 
@@ -201,25 +217,18 @@ function resetForm() {
 
 .new-block__input {
   width: 100%;
-  padding: 10px 12px;
   height: 40px;
-  font-size: 16px;
-  border: none;
-  border-radius: 10px;
-  background: #e3e3e3;
-  transition: outline-color 0.3s ease;
+  font-family: 'Inter', sans-serif;
 }
 
-.new-block__input:focus {
-  outline: 2px solid #ff6121;
-  background: floralwhite;
-  outline-offset: 2px;
+.new-block__label__info {
+  margin-top: 10px;
+  padding: 0;
 }
 
 .new-block__info-fields {
   display: flex;
   flex-direction: column;
-  margin-top: 10px;
   gap: 20px;
 }
 
@@ -229,21 +238,23 @@ function resetForm() {
   gap: 8px;
 }
 
-.new-block__button--add-info {
-  align-self: flex-start;
-  background: #cd671f;
+.new-block__info-field:last-of-type {
   margin-bottom: 10px;
 }
 
-.new-block__button--add-info:hover {
-  background: #984f1a;
+.new-block__button--add-info {
+  align-self: flex-start;
+  margin-bottom: 10px;
 }
 
 .new-block__button--remove-info {
   background: #cd0006;
   font-size: 28px;
-  width: 40px;
-  height: 40px;
+  padding: 0;
+  min-width: 40px;
+  min-height: 40px;
+  max-width: 40px;
+  max-height: 40px;
 }
 
 .new-block__button--remove-info:hover {
@@ -257,5 +268,19 @@ function resetForm() {
 
 .new-block__button--add-block:hover {
   background: #005e00;
+}
+
+.new-block__button--cancel {
+  background: #cd0006;
+}
+
+.new-block__button--cancel:hover {
+  background: #970102;
+}
+
+.final-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
 }
 </style>

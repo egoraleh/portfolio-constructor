@@ -17,23 +17,24 @@
       </router-link>
     </p>
 
-    <BaseButton
-      custom-class="main__button"
-      data-ignore-export
-      @click="downloadPortfolio"
-    >
-      ⬇ Скачать портфолио
-    </BaseButton>
+    <section class="main__buttons">
+      <BaseButton
+        custom-class="main__button main__button--download"
+        data-ignore-export
+        @click="downloadPortfolio"
+      >
+        ⬇ Скачать портфолио
+      </BaseButton>
 
-    <BaseButton
-      v-show="showAddCategoryButton"
-      custom-class="main__button"
-      data-ignore-export
-      @click="openNewCategoryModal"
-    >
-      ✚ Добавить категорию
-    </BaseButton>
-
+      <BaseButton
+        custom-class="main__button"
+        data-ignore-export
+        @click="openNewCategoryModal"
+      >
+        ✚ Категория
+      </BaseButton>
+    </section>
+      
     <BaseModal
       :show="showCategoryModal"
       data-ignore-export
@@ -44,47 +45,82 @@
         @cancel="closeCategoryModal"
       />
     </BaseModal>
-
-    <section
-      v-for="category in store.categories.sort((a, b) => a.position - b.position)"
-      :key="category.id"
-      class="category"
+    
+    <TransitionGroup
+      name="category-list"
+      tag="section"
     >
-      <section class="category__title">
-        <h2 class="category__header">
-          {{ category.title }}
-        </h2>
+      <section
+        v-for="category in store.categories.sort((a, b) => a.position - b.position)"
+        :key="category.id"
+        class="category"
+      >
+        <section class="category__title">
+          <section class="move-buttons">
+            <BaseButton
+              custom-class="category__position-button"
+              :class="{ 'category__position-button--disabled': isFirstCategory(category.id) }"
+              data-ignore-export
+              @click="() => moveCategoryUp(category.id)"
+            >
+              ⬆
+            </BaseButton>
+
+            <BaseButton
+              custom-class="category__position-button"
+              :class="{ 'category__position-button--disabled': isLastCategory(category.id) }"
+              data-ignore-export
+              @click="() => moveCategoryDown(category.id)"
+            >
+              ⬇
+            </BaseButton>
+          </section>
+
+          <h2 class="category__header">
+            {{ category.title }}
+          </h2>
+
+          <BaseButton
+            custom-class="category__button category__button--remove"
+            data-ignore-export
+            @click="() => removeCategory(category.id)"
+          >
+            <img
+              src="/src/assets/images/icons/trash.png"
+              class="category__button-image"
+              alt=""
+            >
+          </BaseButton>
+        </section>
 
         <BaseButton
-          custom-class="category__button category__button--remove"
+          custom-class="category__button category__button--add"
           data-ignore-export
-          @click="() => removeCategory(category.id)"
+          @click="() => openBlockModal(category.id)"
         >
-          <img
-            src="/src/assets/images/icons/trash.png"
-            class="category__button-image"
-            alt=""
-          >
+          ✚ Блок
         </BaseButton>
-      </section>
 
-      <BaseButton
-        custom-class="category__button category__button--add"
-        data-ignore-export
-        @click="() => openBlockModal(category.id)"
-      >
-        ✚ Добавить блок в категорию
-      </BaseButton>
-
-      <section class="category__blocks">
-        <BlockItem
-          v-for="block in category.blocks.sort((a, b) => a.position - b.position)"
-          :key="block.id"
-          :block="block"
-          @remove="() => removeBlock(category.id, block.id)"
-        />
+        <section class="category__blocks">
+          <TransitionGroup
+            name="block-list"
+            tag="section"
+            class="category__blocks"
+          >
+            <BlockItem
+              v-for="(block, index) in category.blocks.sort((a, b) => a.position - b.position)"
+              :key="block.id"
+              :block="block"
+              :is-first-block="index === 0"
+              :is-last-block="index === category.blocks.length - 1"
+              @remove="() => removeBlock(category.id, block.id)"
+              @move-up="() => moveBlockUp(category.id, block.id)"
+              @move-down="() => moveBlockDown(category.id, block.id)"
+            />
+          </TransitionGroup>
+        </section>
       </section>
-    </section>
+    </TransitionGroup>
 
     <BaseModal
       :show="showBlockModal"
@@ -95,6 +131,7 @@
         v-if="activeCategoryId"
         :category-id="activeCategoryId"
         @added="closeBlockModal"
+        @cancel="closeBlockModal"
       />
     </BaseModal>
   </section>
@@ -103,11 +140,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { usePortfolioStore } from '@/stores/portfolioStore';
+import { downloadPortfolio } from '@/scripts/downloadPortfolio';
 import NewBlock from '@/ui/components/NewBlock.vue';
 import BlockItem from '@/ui/components/BlockItem.vue';
 import NewCategory from '@/ui/components/NewCategory.vue';
 import BaseButton from '@/ui/base/BaseButton.vue';
 import BaseModal from "@/ui/base/BaseModal.vue";
+import { PortfolioCategory } from "@/types/PortfolioCategory";
 
 const store = usePortfolioStore();
 
@@ -117,16 +156,14 @@ const showBlockModal = ref(false);
 
 const showCategoryModal = ref(false);
 
-const showAddCategoryButton = ref(true);
-
 const handleAddCategory = (title: string) => {
-  store.addCategory(title)
-  closeCategoryModal()
+  store.addCategory(title);
+  closeCategoryModal();
 };
 
 const openBlockModal = (categoryId: string) => {
-  activeCategoryId.value = categoryId
-  showBlockModal.value = true
+  activeCategoryId.value = categoryId;
+  showBlockModal.value = true;
 };
 
 const closeBlockModal = () => {
@@ -135,70 +172,89 @@ const closeBlockModal = () => {
 };
 
 const openNewCategoryModal = () => {
-  showAddCategoryButton.value = false;
   showCategoryModal.value = true;
 };
 
 const closeCategoryModal = () => {
-  showAddCategoryButton.value = true;
   showCategoryModal.value = false;
 };
 
 const removeCategory = (categoryId: string) => {
-  store.removeCategory(categoryId)
+  store.removeCategory(categoryId);
 };
 
 const removeBlock = (categoryId: string, blockId: string) => {
-  store.removeBlock(categoryId, blockId)
+  store.removeBlock(categoryId, blockId);
 };
 
-const getAllStyles = () => {
-  let styles = '';
-
-  document.head.querySelectorAll('style, link[rel="stylesheet"]').forEach((tag) => {
-    styles += tag.outerHTML;
+const updateCategoriesPositions = () => {
+  store.categories.forEach((category, index) => {
+    category.position = index;
   });
-
-  return styles;
+  store.saveToLocalStorage();
 };
 
-const downloadPortfolio = () => {
-  const portfolioContainer = document.querySelector('#app');
-
-  if (!portfolioContainer) {
-    console.error('Контейнер портфолио не найден');
-    return;
+const moveCategoryUp = (categoryId: string) => {
+  const categoryIndex = store.categories.findIndex(c => c.id === categoryId);
+  if (!isFirstCategory(categoryId)) {
+    const upperCategory = store.categories[categoryIndex - 1];
+    store.categories[categoryIndex - 1] = store.categories[categoryIndex];
+    store.categories[categoryIndex] = upperCategory;
+    updateCategoriesPositions();
   }
+};
 
-  const exportContent = portfolioContainer.cloneNode(true) as HTMLElement;
-
-  const mainHeader = exportContent.querySelector('.main__header');
-  if (mainHeader) {
-    mainHeader.textContent = 'Моё портфолио';
+const moveCategoryDown = (categoryId: string) => {
+  const categoryIndex = store.categories.findIndex(c => c.id === categoryId);
+  if (!isLastCategory(categoryId)) {
+    const lowerCategory = store.categories[categoryIndex + 1];
+    store.categories[categoryIndex + 1] = store.categories[categoryIndex];
+    store.categories[categoryIndex] = lowerCategory;
+    updateCategoriesPositions();
   }
+};
 
-  exportContent.querySelectorAll('[data-ignore-export]').forEach((el) => el.remove());
+const isFirstCategory = (categoryId: string) => {
+  const index = store.categories.findIndex(c => c.id === categoryId);
+  return index === 0;
+};
 
-  const dynamicStyles = getAllStyles();
+const isLastCategory = (categoryId: string) => {
+  const index = store.categories.findIndex(c => c.id === categoryId);
+  return index === store.categories.length - 1;
+};
 
-  const fullHtml = `
-    <html lang="ru">
-      <head>
-        <meta charset="utf-8">
-        <title>Моё портфолио</title>
-        ${dynamicStyles}
-      </head>
-      <body>
-        ${exportContent.outerHTML}
-      </body>
-    </html>
-  `;
+const updateBlocksPositions = (category: PortfolioCategory) => {
+  category.blocks.forEach((block, index) => {
+    block.position = index;
+  });
+  store.saveToLocalStorage();
+};
 
-  const blob = new Blob([fullHtml], { type: 'text/html' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'portfolio.html';
-  link.click();
+const moveBlockUp = (categoryId: string, blockId: string) => {
+  const category = store.categories.find(c => c.id === categoryId);
+  if (!category) return;
+
+  const index = category.blocks.findIndex(b => b.id === blockId);
+  if (index > 0) {
+    const upperBlock = category.blocks[index - 1];
+    category.blocks[index - 1] = category.blocks[index];
+    category.blocks[index] = upperBlock;
+    updateBlocksPositions(category);
+  }
+};
+
+const moveBlockDown = (categoryId: string, blockId: string) => {
+  const category = store.categories.find(c => c.id === categoryId);
+  if (!category) return;
+
+  const index = category.blocks.findIndex(b => b.id === blockId);
+  if (index < category.blocks.length - 1) {
+    const lowerBlock = category.blocks[index + 1];
+    category.blocks[index + 1] = category.blocks[index];
+    category.blocks[index] = lowerBlock;
+    updateBlocksPositions(category);
+  }
 };
 </script>
 
@@ -217,8 +273,11 @@ const downloadPortfolio = () => {
 }
 
 .main {
+  display: flex;
+  flex-direction: column;
   text-align: center;
   padding: 10px;
+  align-items: center;
 }
 
 .main__header {
@@ -228,9 +287,27 @@ const downloadPortfolio = () => {
   margin: 0;
 }
 
-.main__button {
-  height: 35px;
-  width: 250px;
+.main__buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.main__button--download {
+  background: green;
+}
+
+.main__button--download:hover {
+  background: #005e00;
+}
+
+.category {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
 }
 
 .category__title {
@@ -247,5 +324,50 @@ const downloadPortfolio = () => {
 
 .category__button--remove:hover {
   background: #7a0003;
+}
+
+.category__position-button {
+  background: none;
+  border: none;
+  box-shadow: none;
+  width: 20px;
+  height: 35px;
+  font-size: 30px;
+  color: #404040;
+  transition: none;
+}
+
+.category__position-button:hover {
+  transform: none;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.category__position-button--disabled {
+  opacity: 0.3;
+  pointer-events: none;
+  background: none;
+}
+
+.category-list-enter-active,
+.category-list-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.category-list-enter-from,
+.category-list-leave-to {
+  opacity: 0;
+}
+
+.category-list-enter-to,
+.category-list-leave-from {
+  opacity: 1;
+}
+
+.category-list-move {
+  transition: opacity 0.5s ease;
+}
+
+.block-list-move {
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 </style>

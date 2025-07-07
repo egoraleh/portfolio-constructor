@@ -16,13 +16,13 @@
           custom-class="new-category__button new-category__button--add"
           @click="addCategory"
         >
-          ✔
+          Сохранить
         </BaseButton>
         <BaseButton
           custom-class="new-category__button new-category__button--cancel"
           @click="cancel"
         >
-          ✖
+          Отмена
         </BaseButton>
       </section>
 
@@ -60,29 +60,20 @@ function cancel() {
 
 <style>
 .new-category {
-  width: fit-content;
+  width: 100%;
 }
 
 .new-category__header {
   padding: 0;
-  margin: 0 0 5px 5px;
+  margin: 0 0 15px 5px;
   font-size: 24px;
-  text-align: left;
 }
 
 .new-category__input {
-  border-radius: 10px;
-  border: none;
-  width: 300px;
+  width: 100%;
   height: 40px;
-  padding: 10px;
   font-size: 18px;
-  color: #353535;
-  transition: outline-color 0.5s;
-}
-
-.new-category__input:focus {
-  outline: 2px solid #ff6121;
+  margin-bottom: 15px;
 }
 
 .new-category__actions {
@@ -92,9 +83,6 @@ function cancel() {
 
 .new-category__button {
   margin: 10px 5px;
-  font-size: 18px;
-  height: 35px;
-  width: 35px;
 }
 
 .new-category__button--add {

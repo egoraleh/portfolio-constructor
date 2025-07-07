@@ -1,5 +1,39 @@
 <template>
   <section class="block-item">
+    <section 
+      class="block-item__buttons"
+      data-ignore-export
+    >
+      <BaseButton
+        class="block-item__button block-item__button--move"
+        :class="{ 'block-item__button--disabled': isFirstBlock }"
+        data-ignore-export
+        @click="$emit('move-up')"
+      >
+        ⬆
+      </BaseButton>
+
+      <BaseButton
+        class="block-item__button block-item__button--move"
+        :class="{ 'block-item__button--disabled': isLastBlock }"
+        data-ignore-export
+        @click="$emit('move-down')"
+      >
+        ⬇
+      </BaseButton>
+
+      <BaseButton
+        custom-class="block-item__button"
+        data-ignore-export
+        @click="$emit('remove')"
+      >
+        <img
+          src="/src/assets/images/icons/trash.png"
+          class="category__button-image"
+          alt=""
+        >
+      </BaseButton>
+    </section>
     <img
       v-if="block.image"
       class="block-item__image"
@@ -22,14 +56,6 @@
         </li>
       </ul>
     </section>
-
-    <BaseButton
-      custom-class="block-item__button"
-      data-ignore-export
-      @click="$emit('remove')"
-    >
-      Удалить
-    </BaseButton>
   </section>
 </template>
 
@@ -38,10 +64,14 @@ import type { PortfolioBlock } from '@/types/PortfolioBlock';
 
 const props = defineProps<{
   block: PortfolioBlock
+  isFirstBlock: boolean
+  isLastBlock: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'remove'): void
+  (e: 'move-up'): void
+  (e: 'move-down'): void
 }>()
 </script>
 
@@ -52,10 +82,9 @@ const emit = defineEmits<{
   background: floralwhite;
   border-radius: 20px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  max-width: 1200px;
-  min-width: 500px;
+  width: 1000px;
   margin: 20px 40px;
-  padding: 20px 20px 70px 20px;
+  padding: 20px;
   min-height: 200px;
   position: relative;
 }
@@ -77,6 +106,7 @@ const emit = defineEmits<{
 .block-item__image {
   width: 200px;
   height: auto;
+  margin-left: 20px;
   overflow: hidden;
   border-radius: 20px;
   object-fit: cover;
@@ -92,24 +122,42 @@ const emit = defineEmits<{
   color: #404040;
 }
 
+.block-item__buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
 .block-item__button {
-  position: absolute;
-  bottom: 20px;
-  left: 10px;
-  width: 120px;
+  width: 50px;
   height: 40px;
-  border-radius: 15px;
-  border: none;
-  margin-left: 10px;
   background: #cd0006;
-  color: floralwhite;
-  font-size: 18px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .block-item__button:hover {
   background: #7a0003;
-  transform: scale(1.05);
+}
+
+.block-item__button--move {
+  background: none;
+  border: none;
+  box-shadow: none;
+  width: 20px;
+  height: 35px;
+  font-size: 30px;
+  color: #404040;
+  transition: none;
+}
+
+.block-item__button--move:hover {
+  transform: none;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.block-item__button--disabled {
+  opacity: 0.3;
+  pointer-events: none;
+  background: none;
 }
 </style>
