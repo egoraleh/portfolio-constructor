@@ -13,11 +13,11 @@
 <script setup lang="ts">
 const props = defineProps<{
   show: boolean
-}>()
+}>();
 
 const emit = defineEmits<{
   (e: 'close'): void
-}>()
+}>();
 </script>
 
 <style>

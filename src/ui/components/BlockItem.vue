@@ -66,13 +66,13 @@ const props = defineProps<{
   block: PortfolioBlock
   isFirstBlock: boolean
   isLastBlock: boolean
-}>()
+}>();
 
 const emit = defineEmits<{
   (e: 'remove'): void
   (e: 'move-up'): void
   (e: 'move-down'): void
-}>()
+}>();
 </script>
 
 <style>

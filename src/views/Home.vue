@@ -167,8 +167,8 @@ const openBlockModal = (categoryId: string) => {
 };
 
 const closeBlockModal = () => {
-  showBlockModal.value = false
-  activeCategoryId.value = null
+  showBlockModal.value = false;
+  activeCategoryId.value = null;
 };
 
 const openNewCategoryModal = () => {

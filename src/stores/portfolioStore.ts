@@ -7,51 +7,51 @@ import { PortfolioBlock } from '@/types/PortfolioBlock.ts';
 export const usePortfolioStore = defineStore('portfolio', () => {
     const categories = ref<PortfolioCategory[]>([])
 
-    function addCategory(title: string): void {
+    const addCategory = (title: string): void => {
         categories.value.push({
             id: nanoid(),
             title,
             position: categories.value.length + 1,
             blocks: []
-        })
-        saveToLocalStorage()
-    }
+        });
+        saveToLocalStorage();
+    };
 
-    function removeCategory(categoryId: string): void {
-        categories.value = categories.value.filter(c => c.id !== categoryId)
-        saveToLocalStorage()
-    }
+    const removeCategory = (categoryId: string): void => {
+        categories.value = categories.value.filter(c => c.id !== categoryId);
+        saveToLocalStorage();
+    };
 
-    function addBlock(categoryId: string, block: Omit<PortfolioBlock, 'id' | 'position'>): void {
-        const category = categories.value.find(c => c.id === categoryId)
+    const addBlock = (categoryId: string, block: Omit<PortfolioBlock, 'id' | 'position'>): void => {
+        const category = categories.value.find(c => c.id === categoryId);
         if (category) {
             category.blocks.push({
                 id: nanoid(),
                 position: category.blocks.length + 1,
                 ...block
             })
-            saveToLocalStorage()
+            saveToLocalStorage();
         }
-    }
+    };
 
-    function removeBlock(categoryId: string, blockId: string): void {
-        const category = categories.value.find(c => c.id === categoryId)
+    const removeBlock = (categoryId: string, blockId: string): void => {
+        const category = categories.value.find(c => c.id === categoryId);
         if (category) {
-            category.blocks = category.blocks.filter(b => b.id !== blockId)
-            saveToLocalStorage()
+            category.blocks = category.blocks.filter(b => b.id !== blockId);
+            saveToLocalStorage();
         }
-    }
+    };
 
-    function saveToLocalStorage(): void {
-        localStorage.setItem('portfolio-data', JSON.stringify(categories.value))
-    }
+    const saveToLocalStorage = (): void => {
+        localStorage.setItem('portfolio-data', JSON.stringify(categories.value));
+    };
 
-    function loadFromLocalStorage(): void {
-        const data: string | null = localStorage.getItem('portfolio-data')
+    const loadFromLocalStorage = (): void => {
+        const data: string | null = localStorage.getItem('portfolio-data');
         if (data) {
-            categories.value = JSON.parse(data)
+            categories.value = JSON.parse(data);
         }
-    }
+    };
 
     return {
         categories,
@@ -61,5 +61,5 @@ export const usePortfolioStore = defineStore('portfolio', () => {
         removeBlock,
         saveToLocalStorage,
         loadFromLocalStorage
-    }
+    };
 })

@@ -39,23 +39,23 @@ import BaseButton from "@/ui/base/BaseButton.vue";
 const emit = defineEmits<{
   (e: 'add-category', title: string): void
   (e: 'cancel'): void
-}>()
+}>();
 
-const categoryTitle = ref('')
+const categoryTitle = ref('');
 
-function addCategory() {
+const addCategory = () => {
   if (!categoryTitle.value.trim()) {
-    alert('Введите название категории')
-    return
+    alert('Введите название категории');
+    return;
   }
-  emit('add-category', categoryTitle.value)
-  categoryTitle.value = ''
-}
+  emit('add-category', categoryTitle.value);
+  categoryTitle.value = '';
+};
 
-function cancel() {
-  categoryTitle.value = ''
-  emit('cancel')
-}
+const cancel = () => {
+  categoryTitle.value = '';
+  emit('cancel');
+};
 </script>
 
 <style>

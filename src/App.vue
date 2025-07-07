@@ -3,14 +3,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { usePortfolioStore } from '@/stores/portfolioStore'
+import { onMounted } from 'vue';
+import { usePortfolioStore } from '@/stores/portfolioStore';
 
-const portfolioStore = usePortfolioStore()
+const portfolioStore = usePortfolioStore();
 
 onMounted(() => {
-  portfolioStore.loadFromLocalStorage()
-})
+  portfolioStore.loadFromLocalStorage();
+});
 </script>
 
 <style>

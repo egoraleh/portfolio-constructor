@@ -97,23 +97,23 @@ import BaseButton from "@/ui/base/BaseButton.vue";
 
 const props = defineProps<{
   categoryId: string
-}>()
+}>();
 
 const emit = defineEmits<{
   (e: 'added'): void
   (e: 'cancel'): void
-}>()
+}>();
 
-const portfolioStore = usePortfolioStore()
+const portfolioStore = usePortfolioStore();
 
 const categoryName = computed(() => {
-  const cat = portfolioStore.categories.find(c => c.id === props.categoryId)
-  return cat?.title
-})
+  const cat = portfolioStore.categories.find(c => c.id === props.categoryId);
+  return cat?.title;
+});
 
-const title = ref('')
-const image = ref<File | null>(null)
-const infoFields = ref<string[]>([])
+const title = ref('');
+const image = ref<File | null>(null);
+const infoFields = ref<string[]>([]);
 
 const showInfoHeader = computed(() => infoFields.value.length > 0);
 
@@ -141,8 +141,8 @@ const addBlock = () => {
   }
 
   if (infoFields.value.length === 0) {
-    alert('Добавьте хотя бы одно информационное поле')
-    return
+    alert('Добавьте хотя бы одно информационное поле');
+    return;
   }
 
   if (image.value) {
