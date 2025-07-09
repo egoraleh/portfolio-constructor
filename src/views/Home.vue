@@ -34,7 +34,7 @@
         ✚ Категория
       </BaseButton>
     </section>
-      
+
     <BaseModal
       :show="showCategoryModal"
       data-ignore-export
@@ -45,7 +45,7 @@
         @cancel="closeCategoryModal"
       />
     </BaseModal>
-    
+
     <TransitionGroup
       name="category-list"
       tag="section"
@@ -54,6 +54,7 @@
         v-for="category in store.categories.sort((a, b) => a.position - b.position)"
         :key="category.id"
         class="category"
+        :style="getElementStyle(category.id)"
       >
         <section class="category__title">
           <section class="move-buttons">
@@ -91,6 +92,14 @@
               alt=""
             >
           </BaseButton>
+
+          <BaseButton
+            custom-class="category__button category__button--edit"
+            data-ignore-export
+            @click="() => openStyleModal(category.id)"
+          >
+            🎨
+          </BaseButton>
         </section>
 
         <BaseButton
@@ -101,15 +110,18 @@
           ✚ Блок
         </BaseButton>
 
-        <section class="category__blocks">
-          <TransitionGroup
-            name="block-list"
-            tag="section"
-            class="category__blocks"
+        <TransitionGroup
+          name="block-list"
+          tag="section"
+          class="category__blocks"
+        >
+          <section
+            v-for="(block, index) in category.blocks.sort((a, b) => a.position - b.position)"
+            :key="block.id"
+            class="block"
+            :style="getElementStyle(block.id)"
           >
             <BlockItem
-              v-for="(block, index) in category.blocks.sort((a, b) => a.position - b.position)"
-              :key="block.id"
               :block="block"
               :is-first-block="index === 0"
               :is-last-block="index === category.blocks.length - 1"
@@ -117,8 +129,16 @@
               @move-up="() => moveBlockUp(store, category.id, block.id)"
               @move-down="() => moveBlockDown(store, category.id, block.id)"
             />
-          </TransitionGroup>
-        </section>
+
+            <BaseButton
+              custom-class="block__button block__button--edit"
+              data-ignore-export
+              @click="() => openStyleModal(block.id)"
+            >
+              🎨
+            </BaseButton>
+          </section>
+        </TransitionGroup>
       </section>
     </TransitionGroup>
 
@@ -134,12 +154,24 @@
         @cancel="closeBlockModal"
       />
     </BaseModal>
+
+    <BaseModal
+      :show="showStyleModal"
+      @close="closeStyleModal"
+    >
+      <ElementSettings
+        v-if="activeElementId"
+        :element-id="activeElementId"
+        @close="closeStyleModal"
+      />
+    </BaseModal>
   </section>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import { usePortfolioStore } from '@/stores/portfolioStore';
+import { useElementStylesStore } from '@/stores/elementStylesStore';
 import { downloadPortfolio } from '@/scripts/downloadPortfolio';
 import { moveCategoryUp, moveCategoryDown, isLastCategory, isFirstCategory } from '@/scripts/moveCategories';
 import { moveBlockUp, moveBlockDown } from '@/scripts/moveBlocks';
@@ -148,14 +180,16 @@ import BlockItem from '@/ui/components/BlockItem.vue';
 import NewCategory from '@/ui/components/NewCategory.vue';
 import BaseButton from '@/ui/base/BaseButton.vue';
 import BaseModal from '@/ui/base/BaseModal.vue';
+import ElementSettings from '@/ui/components/ElementSettings.vue';
 
 const store = usePortfolioStore();
+const stylesStore = useElementStylesStore();
 
 const activeCategoryId = ref<string | null>(null);
-
 const showBlockModal = ref(false);
-
 const showCategoryModal = ref(false);
+const showStyleModal = ref(false);
+const activeElementId = ref<string | null>(null);
 
 const handleAddCategory = (title: string) => {
   store.addCategory(title);
@@ -186,6 +220,32 @@ const removeCategory = (categoryId: string) => {
 
 const removeBlock = (categoryId: string, blockId: string) => {
   store.removeBlock(categoryId, blockId);
+};
+
+const openStyleModal = (elementId: string) => {
+  activeElementId.value = elementId;
+  showStyleModal.value = true;
+};
+
+const closeStyleModal = () => {
+  showStyleModal.value = false;
+  activeElementId.value = null;
+};
+
+const getElementStyle = (elementId: string) => {
+  const style = stylesStore.getStyle(elementId);
+  return {
+    backgroundColor: style.backgroundColor || '',
+    color: style.textColor || '',
+    fontSize: style.fontSize || '',
+    fontStyle: style.fontStyle || '',
+    fontWeight: style.fontWeight || '',
+    textAlign: style.textAlign || '',
+    alignItems: style.alignItems || '',
+    alignContent: style.alignContent || '',
+    width: style.width || '',
+    height: style.height || ''
+  };
 };
 </script>
 
